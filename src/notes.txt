@@ -1,0 +1,65 @@
+import React from 'react';
+
+const FavoritesButton = ({ book }) => {
+  const addToFavorites = () => {
+    // Use the IT Book Store API to add the book to the user's favorites list
+    fetch(`https://api.itbook.store/1.0/favorites/${book.isbn13}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(book)
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to add book to favorites');
+        }
+        alert('Book added to favorites!');
+      })
+      .catch(error => {
+        console.error(error);
+        alert('Failed to add book to favorites');
+      });
+  };
+
+  return (
+    <button onClick={addToFavorites}>Add to favorites</button>
+  );
+};
+
+export default FavoritesButton;
+
+
+
+import React, { useState, useEffect } from 'react';
+import FavoritesButton from './FavoritesButton';
+
+const SearchResultsPage = () => {
+  const [searchResults, setSearchResults] = useState([]);
+
+  useEffect(() => {
+    // Use the IT Book Store API to search for books
+    fetch('https://api.itbook.store/1.0/search/mongodb')
+      .then(response => response.json())
+      .then(data => {
+        setSearchResults(data.books);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }, []);
+
+  return (
+    <div>
+      {searchResults.map(book => (
+        <div key={book.isbn13}>
+          <h2>{book.title}</h2>
+          <p>{book.subtitle}</p>
+          <FavoritesButton book={book} />
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default SearchResultsPage;
